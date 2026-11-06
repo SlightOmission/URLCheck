@@ -1,8 +1,14 @@
-.PHONY: build
-# ^ Don't try to use the build/ directory
+.PHONY: build test lint install
 
 build:
-	pipenv run python -m build
+	uv build
+
+test:
+	uv run pytest
+
+lint:
+	uv run ruff check .
+	uv run ruff format --check .
 
 install:
-	pip install -e .
+	uv tool install --reinstall .

@@ -1,16 +1,20 @@
 # URLCheck
 
-```
-$ urlcheck --help
-usage: urlcheck [-h] [-f FILE] [-g GSB_API_KEY] [-u URLSCAN_API_KEY]
+Reads text (an abuse report, an email), pulls out every URL, checks each one against Google Safe Browsing, tests whether it still loads (PyFunceble), optionally submits it to urlscan.io, and prints a defanged report email for the site owner. Progress and warnings go to stderr, so stdout is only the email.
 
-Checks URLs against Google Safe Browsing and checks their status
+## Setup
 
-options:
-  -h, --help            show this help message and exit
-  -f FILE, --file FILE  Defaults to /dev/stdin
-  -g GSB_API_KEY, --gsb_api_key GSB_API_KEY
-                        Defaults to GSB_API_KEY environment variable
-  -u URLSCAN_API_KEY, --urlscan_api_key URLSCAN_API_KEY
-                        Defaults to URLSCAN_API_KEY environment variable
 ```
+uv tool install .            # puts `urlcheck` on your PATH
+export GSB_API_KEY=...       # required
+export URLSCAN_API_KEY=...   # optional
+urlcheck -f report.txt > email.txt
+urlcheck --help
+```
+
+Development: `uv sync`, then `make test` and `make lint`.
+
+## Gotchas
+
+- urlscan.io scans are submitted with `visibility: public`. Anything in the URLs (tokens, customer paths) becomes publicly searchable on urlscan.io.
+- A URL whose status cannot be determined is treated as still live, so a flagged URL gets "Remove content" rather than "Request a review". Asking for removal of something already gone is cheaper than telling a customer to request a review while the content is still up.
